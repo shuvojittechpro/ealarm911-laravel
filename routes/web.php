@@ -29,7 +29,10 @@ Route::get('/admin/security_questions', function() {
     return View::make('admin.security_questions_list');
 });
 Route::get('/admin/add_security_questions', function() {
-    return View::make('SequrityQuestionController@add');
+    return View::make('admin.security_questions_add');
 });
 Route::get('/admin/response_questions_list','SequrityQuestionController@response_security_questions_list');
 Route::post('/admin/change_security_questions_status','SequrityQuestionController@change_status');
+Route::post('/admin/process_sequrity_question','SequrityQuestionController@process_question');
+Route::get('/admin/edit_security_questions/{questionID}',['uses' => 'SequrityQuestionController@edit']);
+Route::get('/admin/delete_security_questions/{questionID}',['uses' => 'SequrityQuestionController@delete']);

@@ -56,8 +56,8 @@ class SequrityQuestionController extends Controller
                             $alldata->question,
                             $status_val.'<a class="btn btn_icon-xs" title="Toggle Status" alt="Toggle Status" onClick="change_security_question_status('.$alldata->id.',this)"><i class="fa fa-exchange" aria-hidden="true"></i></a>',
                             date('d-m-Y',$alldata->postedTime),
-                            '<a class="btn btn_icon-xs btn_icon-success" href="'.url('admin/security_questions/edit/'.$alldata->id).'"><i class="fa fa-pencil-square-o" aria-hidden="true"></i></a>
-                            <a class="btn btn_icon-xs btn_icon-danger" href="'.url('admin/security_questions/delete/'.$alldata->id).'"><i class="fa fa-trash" aria-hidden="true"></i></a>'
+                            '<a class="btn btn_icon-xs btn_icon-success" href="'.url('admin/edit_security_questions/'.$alldata->id).'"><i class="fa fa-pencil-square-o" aria-hidden="true"></i></a>
+                            <a class="btn btn_icon-xs btn_icon-danger" href="'.url('admin/delete_security_questions/'.$alldata->id).'"><i class="fa fa-trash" aria-hidden="true"></i></a>'
             );
             $i++;
         }
@@ -109,4 +109,77 @@ class SequrityQuestionController extends Controller
         }
         exit;
     }
+    
+    public function edit($questionID){
+        $question_details = SequrityQuestion::find($questionID);;
+        $question_id = $questionID;
+        return view('admin.security_questions_edit', compact('question_details','question_id'));
+        
+    }
+
+    public function delete($questionID){
+        $SequrityQuestion = SequrityQuestion::find($questionID);;
+        $SequrityQuestion->delete();
+        return redirect('admin/security_questions');
+        
+    }
+
+    public function process_question(Request $request){
+        $data['question'] = $request->input('question');
+        $data['status'] = "Y";
+        $data['postedTime'] = time();
+       
+        try{
+            if($request->input('action') == 'add'){
+
+                $SequrityQuestion = new SequrityQuestion([
+                    'question' => $request->input('question'),
+                    'status' => 'Y',
+                    'postedTime' => time()
+                  ]);
+                $SequrityQuestion->timestamps = false;
+                if($SequrityQuestion->save() === true){
+                    $result = array('status' => true);
+                    $result['message'] = 'Question Successfully Submited';
+                }
+                else{
+                    throw new Exception("Error Processing Request");
+                }
+            }
+            elseif($request->input('action') == 'edit'){
+                unset($data['status']);
+                unset($data['postedTime']);
+                $SequrityQuestion = SequrityQuestion::find($request->input('question_id'));
+                $SequrityQuestion->timestamps = false;
+                $SequrityQuestion->question = $data['question'];
+                if($SequrityQuestion->save() === true){
+                    $result = array('status' => true);
+                    $result['message'] = 'Question Updated Submited';
+                }
+                else{
+                    throw new Exception("Error Processing Request");
+                }
+            }
+        }catch(Exception $e){
+            $result = array('status' => false);
+            $result['message'] = $e->getMessage();
+        }
+
+        if($result['status'] === true){
+            $request->session()->flash('notify_mssg',$result['message']);
+            $request->session()->flash('notify_stat','success');
+            return redirect('admin/security_questions');
+        }
+        else{
+            $request->session()->flash('notify_mssg',$result['message']);
+            $request->session()->flash('notify_stat','error');
+            if($this->input->post('action') == 'add'){
+                return redirect('admin/add_security_questions');
+            }
+            elseif($this->input->post('action') == 'edit'){
+                return redirect('admin/edit_security_questions/'.$request->input('question_id'));
+            }
+        }
+    }
+
 }

@@ -7,4 +7,6 @@ use Illuminate\Database\Eloquent\Model;
 class SequrityQuestion extends Model
 {
     protected $table = 'security_questions';
+
+    protected $fillable = ['question', 'status', 'postedTime'];
 }
