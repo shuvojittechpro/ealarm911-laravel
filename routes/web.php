@@ -25,3 +25,6 @@ Route::get('/admin/user', function() {
     return View::make('admin.user_list');
 });
 Route::get('/admin/get_userlist', 'UserController@response_user_list');
+Route::get('/admin/security_questions', function() {
+    return View::make('admin.user_list');
+});
